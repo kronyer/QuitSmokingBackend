@@ -1,0 +1,6 @@
+@QuitSmoking_HostAddress = http://localhost:5263
+
+GET {{QuitSmoking_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
