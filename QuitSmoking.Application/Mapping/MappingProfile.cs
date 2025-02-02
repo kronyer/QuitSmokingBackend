@@ -8,8 +8,8 @@ namespace QuitSmoking.Application.Mapping
     {
         public MappingProfile()
         {
-            CreateMap<CigarreteDto, Cigarretes>().ReverseMap();
-            CreateMap<CigarreteUpdateDto, Cigarretes>().ReverseMap();
+            CreateMap<CigarreteDto, UserCigarrete>().ReverseMap();
+            CreateMap<CigarreteUpdateDto, UserCigarrete>().ReverseMap();
 
             CreateMap<SmokingHistoryDto, SmokingHistory>().ReverseMap();
             CreateMap<SmokingHistoryUpdateDto, SmokingHistory>().ReverseMap();

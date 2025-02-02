@@ -9,10 +9,10 @@ namespace QuitSmoking.Domain.Interfaces
 {
     public interface ICigarretesService
     {
-        Task<IEnumerable<Cigarretes>> GetAllAsync();
-        Task<Cigarretes> GetByIdAsync(int id);
-        Task AddAsync(Cigarretes cigarretes);
-        Task UpdateAsync(Cigarretes cigarretes);
+        Task<IEnumerable<UserCigarrete>> GetAllAsync();
+        Task<UserCigarrete> GetByIdAsync(int id);
+        Task AddAsync(UserCigarrete cigarretes);
+        Task UpdateAsync(UserCigarrete cigarretes);
         Task DeleteAsync(int id);
     }
 }

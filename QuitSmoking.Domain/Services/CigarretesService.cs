@@ -16,23 +16,23 @@ namespace QuitSmoking.Domain.Services
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<IEnumerable<Cigarretes>> GetAllAsync()
+        public async Task<IEnumerable<UserCigarrete >> GetAllAsync()
         {
             return await _cigarretesRepository.GetAllAsync();
         }
 
-        public async Task<Cigarretes> GetByIdAsync(int id)
+        public async Task<UserCigarrete> GetByIdAsync(int id)
         {
             return await _cigarretesRepository.GetByIdAsync(id);
         }
 
-        public async Task AddAsync(Cigarretes cigarretes)
+        public async Task AddAsync(UserCigarrete cigarretes)
         {
             await _cigarretesRepository.AddAsync(cigarretes);
             await _unitOfWork.CompleteAsync();
         }
 
-        public async Task UpdateAsync(Cigarretes cigarretes)
+        public async Task UpdateAsync(UserCigarrete cigarretes)
         {
             _cigarretesRepository.UpdateAsync(cigarretes);
             await _unitOfWork.CompleteAsync();

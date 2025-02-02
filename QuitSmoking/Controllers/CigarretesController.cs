@@ -45,7 +45,7 @@ namespace QuitSmoking.Controllers
         [HttpPost]
         public async Task<ActionResult> Add([FromBody] CigarreteDto cigarretesDto)
         {
-            var cigarretes = _mapper.Map<Cigarretes>(cigarretesDto);
+            var cigarretes = _mapper.Map<UserCigarrete>(cigarretesDto);
             await _cigarretesService.AddAsync(cigarretes);
             return CreatedAtAction(nameof(GetById), new { id = cigarretes.Id }, cigarretes);
         }
@@ -53,7 +53,7 @@ namespace QuitSmoking.Controllers
         [HttpPut("{id}")]
         public async Task<ActionResult> Update(int id, [FromBody] CigarreteDto cigarretesDto)
         {
-            var cigarretes = _mapper.Map<Cigarretes>(cigarretesDto);
+            var cigarretes = _mapper.Map<UserCigarrete>(cigarretesDto);
             if (id != cigarretes.Id)
             {
                 return BadRequest();

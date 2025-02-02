@@ -11,7 +11,22 @@ namespace QuitSmoking.Infrastructure
         {
         }
 
-        public DbSet<Cigarretes> Cigarretes { get; set; }
+        public DbSet<UserCigarrete> Cigarretes { get; set; }
         public DbSet<SmokingHistory> SmokingHistories { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            base.OnModelCreating(builder);
+
+            builder.Entity<UserCigarrete>()
+                .HasIndex(uc => uc.ApplicationUserId)
+                .IsUnique();
+
+            builder.Entity<UserCigarrete>()
+            .HasOne(uc => uc.ApplicationUser)
+            .WithMany()
+            .HasForeignKey(uc => uc.ApplicationUserId)
+            .OnDelete(DeleteBehavior.Cascade);
+        }
     }
 }

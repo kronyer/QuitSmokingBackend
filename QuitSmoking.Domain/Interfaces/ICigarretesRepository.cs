@@ -2,7 +2,7 @@
 
 namespace QuitSmoking.Domain.Interfaces
 {
-    public interface ICigarretesRepository : IRepository<Cigarretes>
+    public interface ICigarretesRepository : IRepository<UserCigarrete>
     {
     }
 

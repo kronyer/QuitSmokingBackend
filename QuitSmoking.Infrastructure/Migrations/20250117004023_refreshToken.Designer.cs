@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using QuitSmoking.Infrastructure;
 
@@ -11,9 +12,11 @@ using QuitSmoking.Infrastructure;
 namespace QuitSmoking.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250117004023_refreshToken")]
+    partial class refreshToken
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -163,9 +166,6 @@ namespace QuitSmoking.Infrastructure.Migrations
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("BirthDate")
-                        .HasColumnType("datetime2");
-
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
@@ -201,9 +201,10 @@ namespace QuitSmoking.Infrastructure.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("RefreshToken")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime?>("RefreshTokenExpiryTime")
+                    b.Property<DateTime>("RefreshTokenExpiryTime")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("SecurityStamp")
@@ -229,6 +230,26 @@ namespace QuitSmoking.Infrastructure.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("QuitSmoking.Domain.Entities.Cigarretes", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Brand")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<double>("PricePerBox")
+                        .HasColumnType("float");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Cigarretes");
+                });
+
             modelBuilder.Entity("QuitSmoking.Domain.Entities.SmokingHistory", b =>
                 {
                     b.Property<int>("Id")
@@ -236,6 +257,9 @@ namespace QuitSmoking.Infrastructure.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CigarretesId")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
@@ -249,36 +273,11 @@ namespace QuitSmoking.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CigarretesId");
+
                     b.HasIndex("UserId");
 
                     b.ToTable("SmokingHistories");
-                });
-
-            modelBuilder.Entity("QuitSmoking.Domain.Entities.UserCigarrete", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("ApplicationUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Brand")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<double>("PricePerBox")
-                        .HasColumnType("float");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ApplicationUserId")
-                        .IsUnique();
-
-                    b.ToTable("Cigarretes");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -334,6 +333,12 @@ namespace QuitSmoking.Infrastructure.Migrations
 
             modelBuilder.Entity("QuitSmoking.Domain.Entities.SmokingHistory", b =>
                 {
+                    b.HasOne("QuitSmoking.Domain.Entities.Cigarretes", "Cigarretes")
+                        .WithMany("SmokingHistories")
+                        .HasForeignKey("CigarretesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("QuitSmoking.Domain.Entities.ApplicationUser", "ApplicationUser")
                         .WithMany("SmokingHistories")
                         .HasForeignKey("UserId")
@@ -341,20 +346,16 @@ namespace QuitSmoking.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("ApplicationUser");
-                });
 
-            modelBuilder.Entity("QuitSmoking.Domain.Entities.UserCigarrete", b =>
-                {
-                    b.HasOne("QuitSmoking.Domain.Entities.ApplicationUser", "ApplicationUser")
-                        .WithMany()
-                        .HasForeignKey("ApplicationUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ApplicationUser");
+                    b.Navigation("Cigarretes");
                 });
 
             modelBuilder.Entity("QuitSmoking.Domain.Entities.ApplicationUser", b =>
+                {
+                    b.Navigation("SmokingHistories");
+                });
+
+            modelBuilder.Entity("QuitSmoking.Domain.Entities.Cigarretes", b =>
                 {
                     b.Navigation("SmokingHistories");
                 });

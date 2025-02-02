@@ -2,12 +2,12 @@
 
 namespace QuitSmoking.Domain.Entities;
 
-public class Cigarretes
+public class UserCigarrete
 {
     public int Id { get; set; }
     public string Brand { get; set; }
     public double PricePerBox { get; set; }
-
-    [InverseProperty("Cigarretes")]
-    public virtual List<SmokingHistory> SmokingHistories { get; set; }
+    [ForeignKey("ApplicationUserId")]
+    public string ApplicationUserId { get; set; } // Alterado para GUID
+    public virtual ApplicationUser ApplicationUser { get; set; }
 }

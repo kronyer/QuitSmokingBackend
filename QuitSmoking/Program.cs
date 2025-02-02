@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using QuitSmoking.Application.Interfaces;
 using QuitSmoking.Application.Mapping;
 using QuitSmoking.Application.Services;
 using QuitSmoking.Domain.Entities;
@@ -44,6 +43,14 @@ builder.Services.AddAuthentication(options =>
         ValidAudience = builder.Configuration["Jwt:Audience"],
         IssuerSigningKey = new SymmetricSecurityKey(key)
     };
+})
+.AddGoogle(options =>
+{
+    IConfigurationSection googleAuthNSection =
+        builder.Configuration.GetSection("Authentication:Google");
+
+    options.ClientId = googleAuthNSection["ClientId"];
+    options.ClientSecret = googleAuthNSection["ClientSecret"];
 });
 
 builder.Services.AddScoped<ICigarretesRepository, CigarretesRepository>();
@@ -55,6 +62,16 @@ builder.Services.AddScoped<ICigarretesService, CigarretesService>();
 builder.Services.AddScoped<ISmokingHistoryService, SmokingHistoryService>();
 
 builder.Services.AddAutoMapper(typeof(MappingProfile));
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", builder =>
+    {
+        builder.AllowAnyOrigin()
+               .AllowAnyMethod()
+               .AllowAnyHeader();
+    });
+});
 
 
 builder.Services.AddControllers();
@@ -88,6 +105,8 @@ builder.Services.AddSwaggerGen(c =>
     }});
 });
 var app = builder.Build();
+
+app.UseCors("AllowAll");
 
 // Configure the HTTP request pipeline.
 // Configurar o pipeline de solicitação HTTP
