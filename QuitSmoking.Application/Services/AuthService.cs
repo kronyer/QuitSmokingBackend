@@ -11,6 +11,8 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Google.Apis.Auth;
+using Google.Apis.Auth.OAuth2.Flows;
+using Google.Apis.Auth.OAuth2; // Adicione esta linha
 
 namespace QuitSmoking.Application.Services
 {
@@ -19,12 +21,22 @@ namespace QuitSmoking.Application.Services
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IConfiguration _configuration;
+        private readonly GoogleAuthorizationCodeFlow _googleAuthorizationCodeFlow; // Adicione esta linha
+
 
         public AuthService(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IConfiguration configuration)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _configuration = configuration;
+            _googleAuthorizationCodeFlow = new GoogleAuthorizationCodeFlow(new GoogleAuthorizationCodeFlow.Initializer // Adicione esta linha
+            {
+                ClientSecrets = new ClientSecrets
+                {
+                    ClientId = _configuration["Authentication:Google:ClientId"],
+                    ClientSecret = _configuration["Authentication:Google:ClientSecret"]
+                }
+            }); // Adicione esta linha
         }
 
         public async Task<string> RegisterAsync(RegisterModel model)
@@ -84,6 +96,8 @@ namespace QuitSmoking.Application.Services
 
             }
 
+            //pm retorna o LoginResponseDto
+
             return new LoginResponseDto { Token = "", RefreshToken = "", Message = "Invalid password.", Success = false };
         }
 
@@ -132,7 +146,7 @@ namespace QuitSmoking.Application.Services
             };
         }
 
-        private string GenerateRefreshToken()
+        public string GenerateRefreshToken()
         {
             var randomNumber = new byte[32];
             using (var rng = RandomNumberGenerator.Create())
@@ -283,15 +297,54 @@ namespace QuitSmoking.Application.Services
             return user != null;
         }
 
-        public async Task<GoogleJsonWebSignature.Payload> VerifyGoogleToken(GoogleLoginDto model)
+        public async Task<LoginResponseDto> LoginWithGoogle(GoogleLoginDto model)
         {
+            var payload = await VerifyGoogleCode(model);
+            if (payload == null)
+            {
+                return new LoginResponseDto { Token = "", RefreshToken = "", Message = "Invalid Google code.", Success = false };
+            }
+            var user = await FindByEmailAsync(payload.Email);
+            if (user == null)
+            {
+                user = new ApplicationUser
+                {
+                    UserName = payload.Email,
+                    Email = payload.Email,
+                    EmailConfirmed = true
+                };
+                var result = await _userManager.CreateAsync(user);
+                if (!result.Succeeded)
+                {
+                    return new LoginResponseDto { Token = "", RefreshToken = "", Message = "Error creating user.", Success = false };
+                }
+            }
+            user.RefreshToken = GenerateRefreshToken();
+            user.RefreshTokenExpiryTime = DateTime.Now.AddDays(7); // Set refresh token expiry time
+            await _userManager.UpdateAsync(user);
+            var token = await GenerateJwtToken(user);
+            return new LoginResponseDto { Token = token, RefreshToken = user.RefreshToken, Message = "User logged-in.", Success = true };
+        }
+
+        public async Task<GoogleJsonWebSignature.Payload> VerifyGoogleCode(GoogleLoginDto model)
+        {
+            var code = model.Code;
+            var clientId = _configuration["Authentication:Google:ClientId"];
+            var clientSecret = _configuration["Authentication:Google:ClientSecret"];
+            var redirectUri = _configuration["Authentication:Google:RedirectUri"];
+
+            var tokenResponse = await _googleAuthorizationCodeFlow.ExchangeCodeForTokenAsync("user-id", code, redirectUri, CancellationToken.None);
             var settings = new GoogleJsonWebSignature.ValidationSettings()
             {
-                Audience = new List<string> { _configuration["Authentication:Google:ClientId"] }
+                Audience = new List<string> { clientId }
             };
 
-            var payload = await GoogleJsonWebSignature.ValidateAsync(model.TokenId, settings);
+            var payload = await GoogleJsonWebSignature.ValidateAsync(tokenResponse.IdToken, settings);
             return payload;
         }
+
+
+
+
     }
 }

@@ -35,6 +35,15 @@ namespace QuitSmoking.Controllers
             return Ok(userSmokingHistoriesDto);
         }
 
+        [HttpGet("last-five-hours")]
+        public async Task<ActionResult<IEnumerable<DateTime>>> GetLastFiveHours()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var lastFiveHours = await _smokingHistoryService.GetLastFiveHoursAsync(userId);
+            return Ok(lastFiveHours);
+        }
+
+
         [HttpGet("{id}")]
         public async Task<ActionResult<SmokingHistoryGetDto>> GetById(int id)
         {
@@ -53,14 +62,13 @@ namespace QuitSmoking.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> Add([FromBody] SmokingHistoryDto smokingHistoryDto)
+        public async Task<ActionResult> Add()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var smokingHistory = _mapper.Map<SmokingHistory>(smokingHistoryDto);
-            smokingHistory.UserId = userId;
-            await _smokingHistoryService.AddAsync(smokingHistory);
+            var smokingHistory = await _smokingHistoryService.AddAsync(userId);
             return CreatedAtAction(nameof(GetById), new { id = smokingHistory.Id }, smokingHistory);
         }
+
 
         [HttpPut("{id}")]
         public async Task<ActionResult> Update(int id, [FromBody] SmokingHistoryUpdateDto smokingHistoryUpdateDto)

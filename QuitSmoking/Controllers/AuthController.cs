@@ -16,7 +16,7 @@ namespace QuitSmoking.Controllers
     public partial class AuthController : ControllerBase
     {
         private readonly IAuthService _authService;
-        private readonly UserManager<ApplicationUser> _userManager; // Add this line
+        private readonly UserManager<ApplicationUser> _userManager; // Add this line //pm interface?
 
         public AuthController(IAuthService authService, UserManager<ApplicationUser> userManager) // Modify constructor
         {
@@ -179,38 +179,13 @@ namespace QuitSmoking.Controllers
         [HttpPost("google-login")]
         public async Task<IActionResult> GoogleLogin([FromBody] GoogleLoginDto model)
         {
-            var payload = await _authService.VerifyGoogleToken(model);
-            if (payload == null)
+            var result = await _authService.LoginWithGoogle(model);
+            if (result.Success)
             {
-                return Unauthorized(new { Error = "Token do Google inválido." });
+                return Ok(result);
             }
-
-            var user = await _authService.FindByEmailAsync(payload.Email);
-            if (user == null)
-            {
-                user = new ApplicationUser
-                {
-                    UserName = payload.Email,
-                    Email = payload.Email,
-                    EmailConfirmed = true
-                };
-                var result = await _userManager.CreateAsync(user);
-                if (!result.Succeeded)
-                {
-                    return BadRequest(result.Errors);
-                }
-            }
-
-            var token = await _authService.GenerateJwtToken(user);
-            return Ok(new LoginResponseDto
-            {
-                Token = token,
-                RefreshToken = user.RefreshToken,
-                Message = "Login bem-sucedido.",
-                Success = true
-            });
+            return Unauthorized(new { Error = result.Message });
         }
-
 
     }
 }

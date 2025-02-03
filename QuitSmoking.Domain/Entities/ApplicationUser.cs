@@ -14,5 +14,8 @@ namespace QuitSmoking.Domain.Entities
         public DateTime BirthDate { get; set; }
         public string? RefreshToken { get; set; }
         public DateTime? RefreshTokenExpiryTime { get; set; }
+        [ForeignKey("Cigarretes")]
+        public int? CigarreteId { get; set; }
+        public virtual UserCigarrete? Cigarretes { get; set; }
     }
 }

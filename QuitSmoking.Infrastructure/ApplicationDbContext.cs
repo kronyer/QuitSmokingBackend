@@ -17,16 +17,6 @@ namespace QuitSmoking.Infrastructure
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
-
-            builder.Entity<UserCigarrete>()
-                .HasIndex(uc => uc.ApplicationUserId)
-                .IsUnique();
-
-            builder.Entity<UserCigarrete>()
-            .HasOne(uc => uc.ApplicationUser)
-            .WithMany()
-            .HasForeignKey(uc => uc.ApplicationUserId)
-            .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

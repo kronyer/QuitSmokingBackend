@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using QuitSmoking.Infrastructure;
 
@@ -11,9 +12,11 @@ using QuitSmoking.Infrastructure;
 namespace QuitSmoking.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250202174019_UserPointsToCigarrete")]
+    partial class UserPointsToCigarrete
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -242,9 +245,6 @@ namespace QuitSmoking.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("CigarreteId")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
 
@@ -256,8 +256,6 @@ namespace QuitSmoking.Infrastructure.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CigarreteId");
 
                     b.HasIndex("UserId");
 
@@ -346,12 +344,6 @@ namespace QuitSmoking.Infrastructure.Migrations
 
             modelBuilder.Entity("QuitSmoking.Domain.Entities.SmokingHistory", b =>
                 {
-                    b.HasOne("QuitSmoking.Domain.Entities.UserCigarrete", "Cigarrete")
-                        .WithMany()
-                        .HasForeignKey("CigarreteId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("QuitSmoking.Domain.Entities.ApplicationUser", "ApplicationUser")
                         .WithMany("SmokingHistories")
                         .HasForeignKey("UserId")
@@ -359,8 +351,6 @@ namespace QuitSmoking.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("ApplicationUser");
-
-                    b.Navigation("Cigarrete");
                 });
 
             modelBuilder.Entity("QuitSmoking.Domain.Entities.ApplicationUser", b =>

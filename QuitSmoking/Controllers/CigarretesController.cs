@@ -4,6 +4,7 @@ using QuitSmoking.Application.DTOs;
 using QuitSmoking.Domain.Entities;
 using QuitSmoking.Domain.Interfaces;
 using System.Collections.Generic;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace QuitSmoking.Controllers
@@ -32,6 +33,7 @@ namespace QuitSmoking.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<CigarreteDto>> GetById(int id)
         {
+
             var cigarretes = await _cigarretesService.GetByIdAsync(id);
             if (cigarretes == null)
             {
@@ -41,7 +43,6 @@ namespace QuitSmoking.Controllers
             return Ok(cigarretesDto);
         }
 
-        [HttpPost]
         [HttpPost]
         public async Task<ActionResult> Add([FromBody] CigarreteDto cigarretesDto)
         {

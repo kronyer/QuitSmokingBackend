@@ -1,4 +1,5 @@
-﻿using QuitSmoking.Domain.Entities;
+﻿using Microsoft.AspNetCore.Identity;
+using QuitSmoking.Domain.Entities;
 using QuitSmoking.Domain.Interfaces;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -9,11 +10,14 @@ namespace QuitSmoking.Domain.Services
     {
         private readonly ISmokingHistoryRepository _smokingHistoryRepository;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly UserManager<ApplicationUser> _userManager; // Adicione esta linha
 
-        public SmokingHistoryService(ISmokingHistoryRepository smokingHistoryRepository, IUnitOfWork unitOfWork)
+
+        public SmokingHistoryService(ISmokingHistoryRepository smokingHistoryRepository, IUnitOfWork unitOfWork, UserManager<ApplicationUser> userManager) // Modifique o construtor
         {
             _smokingHistoryRepository = smokingHistoryRepository;
             _unitOfWork = unitOfWork;
+            _userManager = userManager; // Inicialize o _userManager
         }
 
         public async Task<IEnumerable<SmokingHistory>> GetAllAsync()
@@ -26,16 +30,25 @@ namespace QuitSmoking.Domain.Services
             return await _smokingHistoryRepository.GetByIdAsync(id);
         }
 
-        public async Task AddAsync(SmokingHistory smokingHistory)
+        public async Task<SmokingHistory> AddAsync(string userId)
         {
-            smokingHistory.Date = DateTime.Now;
-            await _smokingHistoryRepository.AddAsync(smokingHistory);
+            var user = await _userManager.FindByIdAsync(userId);
+            if(user is null)
+            {
+                throw new Exception("User not Found");
+            } else if (user.CigarreteId is null || user.CigarreteId == 0)
+            {
+                throw new Exception("User config not set");
+            }
+            var smokingHistory = new SmokingHistory() { UserId = userId, Date = DateTime.Now, CigarreteId = user.CigarreteId.Value, Quantity = 1 };
+            await _unitOfWork.SmokingHistoryRepository.AddAsync(smokingHistory);
             await _unitOfWork.CompleteAsync();
+            return smokingHistory;
         }
 
         public async Task UpdateAsync(SmokingHistory smokingHistory)
         {
-            _smokingHistoryRepository.UpdateAsync(smokingHistory);
+           await _unitOfWork.SmokingHistoryRepository.UpdateAsync(smokingHistory);
             await _unitOfWork.CompleteAsync();
         }
 
@@ -44,6 +57,12 @@ namespace QuitSmoking.Domain.Services
             await _smokingHistoryRepository.DeleteAsync(id);
             await _unitOfWork.CompleteAsync();
         }
+
+        public async Task<IEnumerable<DateTime>> GetLastFiveHoursAsync(string userId)
+        {
+            return await _smokingHistoryRepository.GetLastFiveHoursAsync(userId);
+        }
+
     }
 }
 

@@ -1,3 +1,5 @@
+using Google.Apis.Auth.OAuth2;
+using Google.Apis.Auth.OAuth2.Flows;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -60,6 +62,22 @@ builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ICigarretesService, CigarretesService>();
 builder.Services.AddScoped<ISmokingHistoryService, SmokingHistoryService>();
+
+builder.Services.AddScoped<GoogleAuthorizationCodeFlow>(provider =>
+{
+    var googleAuthNSection = builder.Configuration.GetSection("Authentication:Google");
+    var initializer = new GoogleAuthorizationCodeFlow.Initializer
+    {
+        ClientSecrets = new ClientSecrets
+        {
+            ClientId = googleAuthNSection["ClientId"],
+            ClientSecret = googleAuthNSection["ClientSecret"]
+        },
+        // Other configurations as needed
+    };
+    return new GoogleAuthorizationCodeFlow(initializer);
+});
+
 
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 

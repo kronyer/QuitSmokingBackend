@@ -17,5 +17,6 @@ public interface IAuthService
     Task<ApplicationUser> FindByEmailAsync(string email);
     Task<string> GenerateJwtToken(ApplicationUser user);
     Task<bool> IsEmailTakenAsync(string email);
-    Task<GoogleJsonWebSignature.Payload> VerifyGoogleToken(GoogleLoginDto googleLogin); // Added missing method signature
+    Task<GoogleJsonWebSignature.Payload> VerifyGoogleCode(GoogleLoginDto googleLogin); // Added missing method signature
+    Task<LoginResponseDto> LoginWithGoogle(GoogleLoginDto model);
 }
