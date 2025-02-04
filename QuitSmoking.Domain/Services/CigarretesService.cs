@@ -1,50 +1,38 @@
 ﻿using QuitSmoking.Domain.Entities;
 using QuitSmoking.Domain.Interfaces;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
+// QuitSmoking.Domain.Services
 namespace QuitSmoking.Domain.Services
 {
-    public class CigarretesService : ICigarretesService
+    public class SmokingHistoryDomainService : ISmokingHistoryDomainService
     {
-        private readonly ICigarretesRepository _cigarretesRepository;
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly ISmokingHistoryRepository _smokingHistoryRepository;
 
-        public CigarretesService(ICigarretesRepository cigarretesRepository, IUnitOfWork unitOfWork)
+        public SmokingHistoryDomainService(ISmokingHistoryRepository smokingHistoryRepository)
         {
-            _cigarretesRepository = cigarretesRepository;
-            _unitOfWork = unitOfWork;
+            _smokingHistoryRepository = smokingHistoryRepository;
         }
 
-        public async Task<IEnumerable<UserCigarrete >> GetAllAsync()
+        public async Task<SmokingScore> GetTodayScoreAsync(string userId)
         {
-            return await _cigarretesRepository.GetAllAsync();
-        }
+            var todaySmoked = await _smokingHistoryRepository.GetTodaySmokedAsync(userId);
+            var lastSmoked = await _smokingHistoryRepository.GetSmokedBeforeToday(userId);
 
-        public async Task<UserCigarrete> GetByIdAsync(int id)
-        {
-            return await _cigarretesRepository.GetByIdAsync(id);
-        }
+            var lastSmokedDate = lastSmoked.FirstOrDefault()?.Date;
 
-        public async Task AddAsync(UserCigarrete cigarretes)
-        {
-            await _cigarretesRepository.AddAsync(cigarretes);
-            await _unitOfWork.CompleteAsync();
-        }
 
-        public async Task UpdateAsync(UserCigarrete cigarretes)
-        {
-            _cigarretesRepository.UpdateAsync(cigarretes);
-            await _unitOfWork.CompleteAsync();
-        }
-
-        public async Task DeleteAsync(int id)
-        {
-            await _cigarretesRepository.DeleteAsync(id);
-            await _unitOfWork.CompleteAsync();
+            // CigarretesScore é uma entidade de domínio, não um DTO
+            return new SmokingScore
+            {
+                SmokedToday = todaySmoked.Count(),
+                SmokedBefore = lastSmoked.Count(),
+                Date = DateTime.Today,
+                LastSmokedDate = lastSmokedDate ?? DateTime.Today
+            };
         }
     }
 }
+
 
 
 

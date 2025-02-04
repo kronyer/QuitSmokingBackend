@@ -20,6 +20,34 @@ namespace QuitSmoking.Infrastructure.Repositories
                 .Select(sh => sh.Date)
                 .ToListAsync();
         }
+
+        public async Task<IEnumerable<SmokingHistory>> GetSmokedBeforeToday(string userId)
+        {
+            var lastDate = await _smokingHistoryDbSet
+                .Where(sh => sh.UserId == userId && sh.Date.Date < DateTime.Today)
+                .OrderByDescending(sh => sh.Date)
+                .Select(sh => sh.Date.Date)
+                .FirstOrDefaultAsync();
+
+            if (lastDate == default)
+            {
+                return new List<SmokingHistory>();
+            }
+
+            return await _smokingHistoryDbSet
+                .Where(sh => sh.UserId == userId && sh.Date.Date == lastDate)
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<SmokingHistory>> GetTodaySmokedAsync(string userId)
+        {
+            return await _smokingHistoryDbSet
+                .Where(sh => sh.UserId == userId && sh.Date.Date == DateTime.Today)
+                .ToListAsync();
+        }
+
+
+
     }
 }
 

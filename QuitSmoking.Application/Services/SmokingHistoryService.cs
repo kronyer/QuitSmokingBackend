@@ -1,10 +1,8 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using QuitSmoking.Domain.Entities;
 using QuitSmoking.Domain.Interfaces;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
-namespace QuitSmoking.Domain.Services
+namespace QuitSmoking.Application.Services
 {
     public class SmokingHistoryService : ISmokingHistoryService
     {
@@ -59,6 +57,11 @@ namespace QuitSmoking.Domain.Services
         }
 
         public async Task<IEnumerable<DateTime>> GetLastFiveHoursAsync(string userId)
+        {
+            return await _smokingHistoryRepository.GetLastFiveHoursAsync(userId);
+        }
+
+        public async Task<IEnumerable<DateTime>> GetTodaySmoked(string userId)
         {
             return await _smokingHistoryRepository.GetLastFiveHoursAsync(userId);
         }

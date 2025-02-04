@@ -62,6 +62,7 @@ builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ICigarretesService, CigarretesService>();
 builder.Services.AddScoped<ISmokingHistoryService, SmokingHistoryService>();
+builder.Services.AddScoped<ISmokingHistoryDomainService, SmokingHistoryDomainService>();
 
 builder.Services.AddScoped<GoogleAuthorizationCodeFlow>(provider =>
 {

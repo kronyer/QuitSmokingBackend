@@ -17,12 +17,14 @@ namespace QuitSmoking.Controllers
     public class SmokingHistoryController : ControllerBase
     {
         private readonly ISmokingHistoryService _smokingHistoryService;
+        private readonly ISmokingHistoryDomainService _domainSmokingHistoryService;
         private readonly IMapper _mapper;
 
-        public SmokingHistoryController(ISmokingHistoryService smokingHistoryService, IMapper mapper)
+        public SmokingHistoryController(ISmokingHistoryService smokingHistoryService, IMapper mapper, ISmokingHistoryDomainService domainSmokingHistoryService)
         {
             _smokingHistoryService = smokingHistoryService;
             _mapper = mapper;
+            _domainSmokingHistoryService = domainSmokingHistoryService;
         }
 
         [HttpGet]
@@ -105,6 +107,19 @@ namespace QuitSmoking.Controllers
 
             await _smokingHistoryService.DeleteAsync(id);
             return NoContent();
+        }
+
+        [Authorize]
+        [HttpGet("smoked-score")]
+        public async Task<ActionResult<SmokingScore>> GetTodaySmokedScore()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var smokingHistory = await _domainSmokingHistoryService.GetTodayScoreAsync(userId);
+            if (smokingHistory == null)
+            {
+                return NotFound();
+            }
+            return Ok(smokingHistory);
         }
     }
 }
