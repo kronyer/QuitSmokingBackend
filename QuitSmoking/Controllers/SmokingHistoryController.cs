@@ -71,6 +71,18 @@ namespace QuitSmoking.Controllers
             return CreatedAtAction(nameof(GetById), new { id = smokingHistory.Id }, smokingHistory);
         }
 
+        [HttpPost("smoked-before")]
+        public async Task<IActionResult> AddSmokedBefore([FromBody] List<SmokingHistoryPostDto> smokingHistoriesDto)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            foreach (var smokingHistoryDto in smokingHistoriesDto)
+            {
+                var smokingHistory = _mapper.Map<SmokingHistory>(smokingHistoryDto);
+                await _smokingHistoryService.AddAsync(userId, smokingHistoryDto.Date);
+            }
+            return Ok();
+        }
+
 
         [HttpPut("{id}")]
         public async Task<ActionResult> Update(int id, [FromBody] SmokingHistoryUpdateDto smokingHistoryUpdateDto)
@@ -109,6 +121,7 @@ namespace QuitSmoking.Controllers
             return NoContent();
         }
 
+        //pm rethink the logic
         [Authorize]
         [HttpGet("smoked-score")]
         public async Task<ActionResult<SmokingScore>> GetTodaySmokedScore()

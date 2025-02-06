@@ -14,6 +14,7 @@ namespace QuitSmoking.Application.Mapping
             CreateMap<SmokingHistoryDto, SmokingHistory>().ReverseMap();
             CreateMap<SmokingHistoryUpdateDto, SmokingHistory>().ReverseMap();
             CreateMap<SmokingHistoryGetDto, SmokingHistory>().ReverseMap();
+            CreateMap<SmokingHistoryPostDto, SmokingHistory>().ReverseMap();
         }
     }
 }

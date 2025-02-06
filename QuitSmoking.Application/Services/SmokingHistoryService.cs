@@ -28,21 +28,29 @@ namespace QuitSmoking.Application.Services
             return await _smokingHistoryRepository.GetByIdAsync(id);
         }
 
-        public async Task<SmokingHistory> AddAsync(string userId)
+        public async Task<SmokingHistory> AddAsync(string userId, DateTime? d = null)
         {
             var user = await _userManager.FindByIdAsync(userId);
-            if(user is null)
+            if (user is null)
             {
                 throw new Exception("User not Found");
-            } else if (user.CigarreteId is null || user.CigarreteId == 0)
+            }
+            else if (user.CigarreteId is null || user.CigarreteId == 0)
             {
                 throw new Exception("User config not set");
             }
-            var smokingHistory = new SmokingHistory() { UserId = userId, Date = DateTime.Now, CigarreteId = user.CigarreteId.Value, Quantity = 1 };
+            var smokingHistory = new SmokingHistory()
+            {
+                UserId = userId,
+                Date = d ?? DateTime.Now,
+                CigarreteId = user.CigarreteId.Value,
+                Quantity = 1
+            };
             await _unitOfWork.SmokingHistoryRepository.AddAsync(smokingHistory);
             await _unitOfWork.CompleteAsync();
             return smokingHistory;
         }
+
 
         public async Task UpdateAsync(SmokingHistory smokingHistory)
         {
