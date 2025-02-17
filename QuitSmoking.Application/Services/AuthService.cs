@@ -343,8 +343,14 @@ namespace QuitSmoking.Application.Services
             return payload;
         }
 
-
-
-
+        public async Task<bool> isFirstAccess(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                throw new Exception("User not found.");
+            }
+            return user.CigarreteId == null || user.CigarreteId == 0;
+        }
     }
 }

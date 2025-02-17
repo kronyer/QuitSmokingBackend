@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using QuitSmoking.Infrastructure;
 
@@ -11,9 +12,11 @@ using QuitSmoking.Infrastructure;
 namespace QuitSmoking.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250216195249_newLogicToProgress")]
+    partial class newLogicToProgress
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -270,37 +273,6 @@ namespace QuitSmoking.Infrastructure.Migrations
                     b.ToTable("SmokingHistories");
                 });
 
-            modelBuilder.Entity("QuitSmoking.Domain.Entities.SmokingProgress", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("LastUpdated")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("NewGoal")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("Success")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("SmokingProgresses");
-                });
-
             modelBuilder.Entity("QuitSmoking.Domain.Entities.UserCigarrete", b =>
                 {
                     b.Property<int>("Id")
@@ -398,17 +370,6 @@ namespace QuitSmoking.Infrastructure.Migrations
                     b.Navigation("ApplicationUser");
 
                     b.Navigation("Cigarrete");
-                });
-
-            modelBuilder.Entity("QuitSmoking.Domain.Entities.SmokingProgress", b =>
-                {
-                    b.HasOne("QuitSmoking.Domain.Entities.ApplicationUser", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("QuitSmoking.Domain.Entities.ApplicationUser", b =>

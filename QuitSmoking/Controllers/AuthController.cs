@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using QuitSmoking.Application.DTOs;
 using QuitSmoking.Domain.Entities;
+using QuitSmoking.Domain.Interfaces;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -17,6 +18,8 @@ namespace QuitSmoking.Controllers
     {
         private readonly IAuthService _authService;
         private readonly UserManager<ApplicationUser> _userManager; // Add this line //pm interface?
+        private readonly ICigarretesService _cigarretesService;
+
 
         public AuthController(IAuthService authService, UserManager<ApplicationUser> userManager) // Modify constructor
         {
@@ -173,6 +176,28 @@ namespace QuitSmoking.Controllers
             var isTaken = await _authService.IsEmailTakenAsync(email);
             return Ok(new { IsEmailTaken = isTaken });
         }
+
+        [HttpPost("first-access")]
+        public async Task<IActionResult> FirstAccess()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)
+            {
+                return NotFound(new { Error = "Usuário não encontrado." });
+            }
+
+            var isFirstAccess = await _authService.isFirstAccess(userId);
+            if (!isFirstAccess)
+            {
+                return BadRequest(new { Error = "First access already updated." });
+            }
+
+            // Additional logic for first access can be added here
+
+            return Ok(new { Message = "First access confirmed." });
+        }
+
+
 
 
 

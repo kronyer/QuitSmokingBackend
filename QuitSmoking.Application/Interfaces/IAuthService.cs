@@ -19,4 +19,5 @@ public interface IAuthService
     Task<bool> IsEmailTakenAsync(string email);
     Task<GoogleJsonWebSignature.Payload> VerifyGoogleCode(GoogleLoginDto googleLogin); // Added missing method signature
     Task<LoginResponseDto> LoginWithGoogle(GoogleLoginDto model);
+    Task<bool> isFirstAccess(string userId);
 }

@@ -13,6 +13,7 @@ namespace QuitSmoking.Infrastructure
 
         public DbSet<UserCigarrete> Cigarretes { get; set; }
         public DbSet<SmokingHistory> SmokingHistories { get; set; }
+        public DbSet<SmokingProgress> SmokingProgresses { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

@@ -17,5 +17,8 @@ namespace QuitSmoking.Domain.Entities
         [ForeignKey("Cigarretes")]
         public int? CigarreteId { get; set; }
         public virtual UserCigarrete? Cigarretes { get; set; }
+        public int CigarretesPerDay { get; set; } = 0;
+        public DateTime RegisteredAt { get; set; }
+        public int WeeksUntilNow => (DateTime.Now - RegisteredAt).Days / 7;
     }
 }

@@ -46,7 +46,15 @@ namespace QuitSmoking.Infrastructure.Repositories
                 .ToListAsync();
         }
 
+        public async Task<int> GetSmokedThisWeek(string userId, DateTime startDate)
+        {
+            var endDate = startDate.AddDays(7);
+            var smokedThisWeek = await _smokingHistoryDbSet
+                .Where(sh => sh.UserId == userId && sh.Date.Date >= startDate.Date && sh.Date.Date <= endDate.Date)
+                .CountAsync();
 
+            return smokedThisWeek;
+        }
 
     }
 }

@@ -69,11 +69,10 @@ namespace QuitSmoking.Application.Services
             return await _smokingHistoryRepository.GetLastFiveHoursAsync(userId);
         }
 
-        public async Task<IEnumerable<DateTime>> GetTodaySmoked(string userId)
+        public async Task<int> GetSmokedThisWeek(string userId, DateTime startDate)
         {
-            return await _smokingHistoryRepository.GetLastFiveHoursAsync(userId);
+            return await _smokingHistoryRepository.GetSmokedThisWeek(userId, startDate);
         }
-
     }
 }
 
