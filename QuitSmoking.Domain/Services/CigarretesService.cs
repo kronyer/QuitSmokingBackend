@@ -13,6 +13,22 @@ namespace QuitSmoking.Domain.Services
             _smokingHistoryRepository = smokingHistoryRepository;
         }
 
+        public Task<IEnumerable<DateTime>> ChartGetSmokedThisMonth(string userId)
+        {
+            return _smokingHistoryRepository.ChartGetSmokedThisMonth(userId);
+        }
+
+        public Task<IEnumerable<DateTime>> ChartGetSmokedThisWeek(string userId)
+        {
+            return _smokingHistoryRepository.ChartGetSmokedThisWeek(userId);
+        }
+
+        public async Task<IEnumerable<DateTime>> ChartGetSmokedToday(string userId)
+        {
+            var result = await _smokingHistoryRepository.ChartGetSmokedToday(userId);
+            return result;
+        }
+
         public async Task<SmokingScore> GetTodayScoreAsync(string userId)
         {
             var todaySmoked = await _smokingHistoryRepository.GetTodaySmokedAsync(userId);

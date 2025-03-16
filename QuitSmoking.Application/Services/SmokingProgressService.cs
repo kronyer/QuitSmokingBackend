@@ -9,13 +9,17 @@ namespace QuitSmoking.Application.Services
     {
         private readonly ISmokingProgressRepository _smokingProgressRepository;
         public readonly ISmokingHistoryService _smokingHistoryService;
+        private readonly ICigarretesService _cigarreteService;
         private readonly UserManager<ApplicationUser> _userManager;
 
-        public SmokingProgressService(ISmokingProgressRepository smokingProgressRepository, UserManager<ApplicationUser> userManager, ISmokingHistoryService smokingHistoryService)
+        public SmokingProgressService(ISmokingProgressRepository smokingProgressRepository,
+            UserManager<ApplicationUser> userManager, ISmokingHistoryService smokingHistoryService,
+            ICigarretesService cigarretesService)
         {
             _smokingProgressRepository = smokingProgressRepository;
             _smokingHistoryService = smokingHistoryService;
             _userManager = userManager;
+            _cigarreteService = cigarretesService;
         }
 
         public async Task<bool> IsSuccess(string userId)
@@ -49,6 +53,45 @@ namespace QuitSmoking.Application.Services
         public async Task<SmokingProgress> GetCurrentChallenge(string userId)
         {
             return await _smokingProgressRepository.GetCurrentChallenge(userId);
+        }
+
+        public async Task<ChallengeResume> ChallengeResume(string userId)
+        {
+            var firstChallenge = await _smokingProgressRepository.GetFirstChallenge(userId);
+            int daysSinceFirstChallenge = (DateTime.Now - firstChallenge.CreatedAt).Days;
+
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user.CigarreteId == null)
+            {
+                throw new Exception("User is not fully registered.");
+            }
+            var cigarrete = await _cigarreteService.GetByIdAsync(user.CigarreteId.Value);
+
+            //user.CigarreteId;
+
+
+            if (firstChallenge == null)
+            {
+                return null;
+            }
+
+            int totalSmoked = await _smokingHistoryService.HowManySmokedSince(userId, firstChallenge.CreatedAt);
+            int totalSmokedBox = totalSmoked / 20;
+
+            var whatWouldBeSmoked = firstChallenge.NewGoal * daysSinceFirstChallenge;
+            var whatWouldBeSmokedBox = whatWouldBeSmoked / 20;
+
+            var totalCigarettesAvoided = whatWouldBeSmoked - totalSmoked;
+            var totalTimeSaved = (whatWouldBeSmoked * 5) - (totalSmoked * 5);
+
+            var totalMoneySaved = whatWouldBeSmokedBox * cigarrete.PricePerBox - totalSmokedBox * cigarrete.PricePerBox;
+
+            return new ChallengeResume
+            {
+                CigarettesAvoided = totalCigarettesAvoided,
+                MoneySaved = totalMoneySaved,
+                TimeSaved = totalTimeSaved
+            };
         }
     }
 }

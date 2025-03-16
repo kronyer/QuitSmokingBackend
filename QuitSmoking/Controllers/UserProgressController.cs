@@ -42,7 +42,25 @@ namespace QuitSmoking.Controllers
         public async Task<IActionResult> IsSuccess()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrEmpty(userId))
+            {
+                throw new Exception();
+            }
+
             var success = await _smokingProgressService.IsSuccess(userId);
+            return Ok(success);
+        }
+
+        [HttpGet("challenge-results")]
+        public async Task<IActionResult> ChallengeResults()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+            {
+                return BadRequest("User not found");
+            }
+            var success = await _smokingProgressService.ChallengeResume(userId);
             return Ok(success);
         }
 

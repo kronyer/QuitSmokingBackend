@@ -56,6 +56,38 @@ namespace QuitSmoking.Infrastructure.Repositories
             return smokedThisWeek;
         }
 
+        public async Task<int> HowManySmokedSince(string userId, DateTime startDate)
+        {
+            var smokedSince = await _smokingHistoryDbSet
+                .Where(sh => sh.UserId == userId && sh.Date.Date >= startDate.Date)
+                .CountAsync();
+            return smokedSince;
+        }
+
+        public async Task<IEnumerable<DateTime>> ChartGetSmokedThisMonth(string userId)
+        {
+            return await _smokingHistoryDbSet
+                .Where(sh => sh.UserId == userId && sh.Date.Month == DateTime.Now.Month)
+                .Select(sh => sh.Date)
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<DateTime>> ChartGetSmokedThisWeek(string userId)
+        {
+            return await _smokingHistoryDbSet
+                .Where(sh => sh.UserId == userId && sh.Date.Date >= DateTime.Now.AddDays(-7).Date)
+                .Select(sh => sh.Date)
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<DateTime>> ChartGetSmokedToday(string userId)
+        {
+            return await _smokingHistoryDbSet
+                .Where(sh => sh.UserId == userId && sh.Date.Date == DateTime.Today)
+                .Select(sh => sh.Date)
+                .ToListAsync();
+        }
+
     }
 }
 

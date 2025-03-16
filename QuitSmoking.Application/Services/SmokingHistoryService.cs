@@ -73,6 +73,12 @@ namespace QuitSmoking.Application.Services
         {
             return await _smokingHistoryRepository.GetSmokedThisWeek(userId, startDate);
         }
+
+        public Task<int> HowManySmokedSince(string userId, DateTime startDate)
+        {
+            return _smokingHistoryRepository.HowManySmokedSince(userId, startDate);
+        }
+
     }
 }
 

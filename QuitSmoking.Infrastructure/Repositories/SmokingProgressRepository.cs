@@ -23,7 +23,7 @@ namespace QuitSmoking.Infrastructure.Repositories
         {
             if (userId == null)
             {
-                throw new ArgumentNullException(nameof(userId));
+                return null;
             }
 
             return await _context.Where(x => x.UserId == userId)
@@ -31,5 +31,16 @@ namespace QuitSmoking.Infrastructure.Repositories
                                  .FirstOrDefaultAsync();
         }
 
+        public async Task<SmokingProgress> GetFirstChallenge(string userId)
+        {
+            if (userId == null)
+            {
+                return null;
+            }
+
+            return await _context.Where(x => x.UserId == userId)
+                                 .OrderBy(x => x.CreatedAt)
+                                 .FirstOrDefaultAsync();
+        }
     }
 }

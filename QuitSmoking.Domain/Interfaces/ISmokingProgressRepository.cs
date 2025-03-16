@@ -10,5 +10,6 @@ namespace QuitSmoking.Domain.Interfaces
     public interface ISmokingProgressRepository : IRepository<SmokingProgress>
     {
         Task<SmokingProgress> GetCurrentChallenge(string userId);
+        Task<SmokingProgress> GetFirstChallenge(string userId);
     }
 }

@@ -21,12 +21,14 @@ namespace QuitSmoking.Application.Services
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IConfiguration _configuration;
+        private readonly ISmokingProgressServices _smokingProgressService;
         private readonly GoogleAuthorizationCodeFlow _googleAuthorizationCodeFlow; // Adicione esta linha
 
 
-        public AuthService(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IConfiguration configuration)
+        public AuthService(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IConfiguration configuration, ISmokingProgressServices smokingProgressServices )
         {
             _userManager = userManager;
+            _smokingProgressService = smokingProgressServices;
             _signInManager = signInManager;
             _configuration = configuration;
             _googleAuthorizationCodeFlow = new GoogleAuthorizationCodeFlow(new GoogleAuthorizationCodeFlow.Initializer // Adicione esta linha
@@ -80,6 +82,9 @@ namespace QuitSmoking.Application.Services
                 user.RefreshTokenExpiryTime = DateTime.Now.AddDays(7); // Definir a data de expiração do token de atualização
                 await _userManager.UpdateAsync(user);
                 var token =  await GenerateJwtToken(user);
+
+                await _smokingProgressService.IsSuccess(user.Id);
+
                 return new LoginResponseDto { Token = token, RefreshToken = user.RefreshToken, Message = "User logged-in.", Success = true };
 
             }

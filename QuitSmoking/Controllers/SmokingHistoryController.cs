@@ -134,6 +134,46 @@ namespace QuitSmoking.Controllers
             }
             return Ok(smokingHistory);
         }
+
+        [Authorize]
+        [HttpGet("smoked-score/day")]
+        public async Task<ActionResult<SmokingScore>> GetDaySmokedScore()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var smokingHistory = await _domainSmokingHistoryService.ChartGetSmokedToday(userId);
+            if (smokingHistory == null)
+            {
+                return NotFound();
+            }
+            return Ok(smokingHistory);
+        }
+
+        [Authorize]
+        [HttpGet("smoked-score/week")]
+        public async Task<ActionResult<SmokingScore>> GetWeekSmokedScore()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var smokingHistory = await _domainSmokingHistoryService.ChartGetSmokedThisWeek(userId);
+            if (smokingHistory == null)
+            {
+                return NotFound();
+            }
+            return Ok(smokingHistory);
+        }
+
+        [Authorize]
+        [HttpGet("smoked-score/month")]
+        public async Task<ActionResult<SmokingScore>> GetMonthSmokedScore()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var smokingHistory = await _domainSmokingHistoryService.ChartGetSmokedThisMonth(userId);
+            if (smokingHistory == null)
+            {
+                return NotFound();
+            }
+            return Ok(smokingHistory);
+        }
+
     }
 }
 

@@ -13,6 +13,7 @@ namespace QuitSmoking.Domain.Interfaces
         Task DeleteAsync(int id);
         Task<IEnumerable<DateTime>> GetLastFiveHoursAsync(string userId);
         Task<int> GetSmokedThisWeek(string userId, DateTime startDate);
+        Task<int> HowManySmokedSince(string userId, DateTime startDate);
     }
 }
 
