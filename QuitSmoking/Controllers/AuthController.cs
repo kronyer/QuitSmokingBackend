@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -60,7 +61,7 @@ namespace QuitSmoking.Controllers
                 return Ok(result);
             }
 
-            return Unauthorized(new { Error = "Error" });
+            return Unauthorized(new { Error = result.Message });
         }
 
         [HttpPost("validate-token")]
@@ -177,7 +178,8 @@ namespace QuitSmoking.Controllers
             return Ok(new { IsEmailTaken = isTaken });
         }
 
-        [HttpPost("first-access")]
+        [HttpGet("first-access")]
+        [Authorize]
         public async Task<IActionResult> FirstAccess()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -189,12 +191,10 @@ namespace QuitSmoking.Controllers
             var isFirstAccess = await _authService.isFirstAccess(userId);
             if (!isFirstAccess)
             {
-                return BadRequest(new { Error = "First access already updated." });
+                return Ok(false);
             }
 
-            // Additional logic for first access can be added here
-
-            return Ok(new { Message = "First access confirmed." });
+            return Ok(true);
         }
 
 

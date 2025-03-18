@@ -24,8 +24,11 @@ namespace QuitSmoking.Application.Services
 
         public async Task<bool> IsSuccess(string userId)
         {
-            //this should happen only if it's passed 7 
             var test = await GetCurrentChallenge(userId);
+            if (test == null)
+            {
+                throw new Exception("Current challenge not found.");
+            }
             if (test.LastUpdated.AddDays(7) > DateTime.Now)
                 return false;
             var user = await _userManager.FindByIdAsync(userId);
@@ -34,13 +37,13 @@ namespace QuitSmoking.Application.Services
                 throw new Exception("User not found.");
             }
             var smokedThisWeek = await _smokingHistoryService.GetSmokedThisWeek(userId, test.LastUpdated);
-            var success =   smokedThisWeek < test.NewGoal * 7;
+            var success = smokedThisWeek < test.NewGoal * 7;
 
-            if (success is true)
+            if (success)
             {
                 test.Success = true;
                 SmokingProgress newProgress = new() { CreatedAt = DateTime.Now, LastUpdated = DateTime.Now, UserId = userId, Success = false, NewGoal = test.NewGoal - 1 };
-                 await _smokingProgressRepository.AddAsync(newProgress);
+                await _smokingProgressRepository.AddAsync(newProgress);
             }
             else
             {
@@ -49,6 +52,7 @@ namespace QuitSmoking.Application.Services
             }
             return success;
         }
+
 
         public async Task<SmokingProgress> GetCurrentChallenge(string userId)
         {
@@ -92,6 +96,38 @@ namespace QuitSmoking.Application.Services
                 MoneySaved = totalMoneySaved,
                 TimeSaved = totalTimeSaved
             };
+        }
+
+        public async Task<bool> CreateFirstChallenge(string userId, int cigarretesPerDay)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                throw new Exception("User not found.");
+            }
+
+            if (user.CigarreteId == null)
+            {
+                throw new Exception("User is not fully registered.");
+            }
+
+            var cigarrete = await _cigarreteService.GetByIdAsync(user.CigarreteId.Value);
+            if (cigarrete == null)
+            {
+                throw new Exception("Cigarrete not found.");
+            }
+
+            SmokingProgress firstChallenge = new SmokingProgress
+            {
+                UserId = userId,
+                CreatedAt = DateTime.Now,
+                LastUpdated = DateTime.Now,
+                NewGoal = cigarretesPerDay,
+                Success = false
+            };
+
+            await _smokingProgressRepository.AddAsync(firstChallenge);
+            return true;
         }
     }
 }

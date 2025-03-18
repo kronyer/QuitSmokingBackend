@@ -83,7 +83,10 @@ namespace QuitSmoking.Application.Services
                 await _userManager.UpdateAsync(user);
                 var token =  await GenerateJwtToken(user);
 
-                await _smokingProgressService.IsSuccess(user.Id);
+                if(user.CigarreteId is not null)
+                {
+                    await _smokingProgressService.IsSuccess(user.Id);
+                }
 
                 return new LoginResponseDto { Token = token, RefreshToken = user.RefreshToken, Message = "User logged-in.", Success = true };
 
